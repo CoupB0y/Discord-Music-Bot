@@ -1,10 +1,9 @@
+from nextcord import Embed
+from nextcord import FFmpegPCMAudio
 from nextcord.ext import commands
 from nextcord.utils import get as dget
 from youtube_dl import YoutubeDL
 from requests import get
-from nextcord import FFmpegPCMAudio
-
-
 
 
 class Music(commands.Cog, name="Music Player"):
@@ -20,7 +19,7 @@ class Music(commands.Cog, name="Music Player"):
     def check_queue(self, ctx, guild_id):
         if self.queues[guild_id]:
             voice = ctx.guild.voice_client
-            source = self.queues[client_id].pop(0)
+            source = self.queues[guild_id].pop(0)
             # song_title = source['title']
 
             source = source['formats'][0]['url']
@@ -79,7 +78,7 @@ class Music(commands.Cog, name="Music Player"):
 
         guild_id = ctx.message.guild.id
         i = 0
-        embed = nextcord.Embed(title="Queue")
+        embed = Embed(title="Queue")
         if self.queues and self.queues[guild_id]:
             for item in self.queues[guild_id]:
                 num = str(i + 1)
@@ -114,7 +113,7 @@ class Music(commands.Cog, name="Music Player"):
     async def skip(self, ctx):
         ''' Skips the current song '''
 
-        voice = nextcord.utils.get(client.voice_clients, guild=ctx.guild)
+        voice = dget(self.bot.voice_clients, guild=ctx.guild)
         guild_id = ctx.message.guild.id
         voice.pause()
         self.check_queue(ctx, guild_id)
@@ -165,10 +164,13 @@ class Music(commands.Cog, name="Music Player"):
 
 
     @commands.command()
-    async def stop(ctx):
+    async def stop(self, ctx):
         ''' Stops the current song and clears the queue '''
+
+        guild_id = ctx.message.guild.id
         voice = dget(self.bot.voice_clients, guild=ctx.guild)
         voice.stop()
+        self.queues[guild_id] = []
 
 
 def setup(bot: commands.Bot):
