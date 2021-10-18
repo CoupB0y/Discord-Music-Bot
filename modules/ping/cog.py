@@ -1,8 +1,8 @@
 from nextcord.ext import commands
 
+
 class Ping(commands.Cog):
     '''Receives ping commands'''
-
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot

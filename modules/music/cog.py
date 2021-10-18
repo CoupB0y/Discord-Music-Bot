@@ -9,34 +9,37 @@ from requests import get
 class Music(commands.Cog, name="Music Player"):
     '''Handles music player commands'''
 
-
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.FFMPEG_OPTS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
-        self.queues = {}
+        self.FFMPEG_OPTS = {
+            'before_options':
+            '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+            'options': '-vn'
+            }
 
+        self.queues = {}
 
     def check_queue(self, ctx, guild_id):
         if self.queues[guild_id]:
             voice = ctx.guild.voice_client
             source = self.queues[guild_id].pop(0)
-            # song_title = source['title']
 
             source = source['formats'][0]['url']
-            voice.play(FFmpegPCMAudio(source, **self.FFMPEG_OPTS), after=lambda x: self.check_queue(ctx, ctx.message.guild.id))
-
+            voice.play(FFmpegPCMAudio(source, **self.FFMPEG_OPTS),
+                       after=lambda x: self.check_queue(ctx,
+                                                        ctx.message.guild.id))
 
     def search(self, query):
         with YoutubeDL({'format': 'bestaudio', 'noplaylist': 'True'}) as ydl:
             try:
                 get(query)
             except:
-                info = ydl.extract_info(f"ytsearch:{query}", download=False)['entries'][0]
+                info = ydl.extract_info(f"ytsearch:{query}", download=False)[
+                                        'entries'][0]
             else:
                 info = ydl.extract_info(query, download=False)
 
         return info
-
 
     @commands.command()
     async def play(self, ctx, *, query):
@@ -46,11 +49,12 @@ class Music(commands.Cog, name="Music Player"):
         '''
 
         video = self.search(query)
+        source = video['formats'][0]['url']
         voice_channel = dget(ctx.guild.voice_channels, name='General')
         voice = dget(self.bot.voice_clients, guild=ctx.guild)
         guild_id = ctx.message.guild.id
 
-        if not voice is None:
+        if voice is not None:
             if not voice.is_connected():
                 await voice_channel.connect()
         else:
@@ -67,10 +71,16 @@ class Music(commands.Cog, name="Music Player"):
             await ctx.send(f"Added {video['title']} to queue")
         else:
             await ctx.send(f"Now playing {video['title']}.")
-            voice.play(FFmpegPCMAudio(video['formats'][0]['url'], **self.FFMPEG_OPTS),
-                       after=lambda x: self.check_queue(ctx, ctx.message.guild.id))
+            voice.play(FFmpegPCMAudio(source, **self.FFMPEG_OPTS),
+                       after=lambda x: self.check_queue(ctx,
+                                                        ctx.message.guild.id))
             voice.is_playing()
 
+    @commands.command()
+    async def volume(self, ctx, value: int):
+        """Sets the volume of the currently playing song."""
+
+        pass
 
     @commands.command()
     async def show(self, ctx):
@@ -88,7 +98,6 @@ class Music(commands.Cog, name="Music Player"):
             await ctx.send(embed=embed)
         else:
             await ctx.send("queue is empty")
-
 
     @commands.command()
     async def queue(self, ctx, *, query):
@@ -108,7 +117,6 @@ class Music(commands.Cog, name="Music Player"):
 
         await ctx.send(f"Added {video['title']} to queue")
 
-
     @commands.command()
     async def skip(self, ctx):
         ''' Skips the current song '''
@@ -118,18 +126,16 @@ class Music(commands.Cog, name="Music Player"):
         voice.pause()
         self.check_queue(ctx, guild_id)
 
-
     @commands.command()
     async def clear(self, ctx):
         ''' Clears the queue '''
 
         guild_id = ctx.message.guild.id
-        queues[guild_id] = []
+        self.queues[guild_id] = []
         await ctx.send("cleared queue")
 
-
     @commands.command()
-    async def leave(self,ctx):
+    async def leave(self, ctx):
         ''' Forces bot to leave voice channel '''
 
         voice = dget(self.bot.voice_clients, guild=ctx.guild)
@@ -137,7 +143,6 @@ class Music(commands.Cog, name="Music Player"):
             await voice.disconnect()
         else:
             await ctx.send("The bot is not connected to a voice channel.")
-
 
     @commands.command()
     async def pause(self, ctx):
@@ -150,7 +155,6 @@ class Music(commands.Cog, name="Music Player"):
         else:
             await ctx.send("Currently no audio is playing.")
 
-
     @commands.command()
     async def resume(self, ctx):
         ''' Resumes the cuurrent song '''
@@ -161,7 +165,6 @@ class Music(commands.Cog, name="Music Player"):
             await ctx.send("Resumed")
         else:
             await ctx.send("The audio is not paused.")
-
 
     @commands.command()
     async def stop(self, ctx):
