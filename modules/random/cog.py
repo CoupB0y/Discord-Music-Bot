@@ -14,7 +14,7 @@ class Random(commands.Cog):
     async def roll(self, ctx: commands.Context, dice: str):
         ''' Rolls a given number of dice in the form #d#
 
-        Example: ?roll 3d10
+        Example: /roll 3d10
         '''
         try:
             rolls = ""

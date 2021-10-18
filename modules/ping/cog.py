@@ -1,6 +1,5 @@
 from nextcord.ext import commands
 
-
 class Ping(commands.Cog):
     '''Receives ping commands'''
 
@@ -11,7 +10,7 @@ class Ping(commands.Cog):
     @commands.command()
     async def ping(self, ctx: commands.Context):
         ''' Checks for response from bot '''
-        await ctx.send("Pong")
+        await ctx.send(f"Pong! {round(self.bot.latency, 1)} ms")
 
 
 def setup(bot: commands.Bot):
