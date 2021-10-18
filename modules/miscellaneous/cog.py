@@ -2,8 +2,8 @@ import random
 from nextcord.ext import commands
 
 
-class Random(commands.Cog):
-    '''Returns random results'''
+class Miscellaneous(commands.Cog):
+    ''' Micellaneous Commands '''
 
 
     def __init__(self, bot: commands.Bot):
