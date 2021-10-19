@@ -50,9 +50,14 @@ class Music(commands.Cog, name="Music Player"):
 
         video = self.search(query)
         source = video['formats'][0]['url']
-        voice_channel = dget(ctx.guild.voice_channels, name='General')
+        voice_state = ctx.author.voice
         voice = dget(self.bot.voice_clients, guild=ctx.guild)
         guild_id = ctx.message.guild.id
+
+        try:
+            voice_channel = ctx.author.voice.channel
+        except AttributeError:
+            return await ctx.send("You need to be in a channel to use this command")
 
         if voice is not None:
             if not voice.is_connected():
