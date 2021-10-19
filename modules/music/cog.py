@@ -30,7 +30,7 @@ class Music(commands.Cog, name="Music Player"):
                                                         ctx.message.guild.id))
 
     def search(self, query):
-        with YoutubeDL({'format': 'bestaudio', 'noplaylist': 'True', 'force-ipv4': 'True'}) as ydl:
+        with YoutubeDL({'format': 'bestaudio', 'noplaylist': 'True', 'source_address': '0.0.0.0'}) as ydl:
             try:
                 get(query)
             except:
