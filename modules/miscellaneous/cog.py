@@ -32,4 +32,4 @@ class Miscellaneous(commands.Cog):
 
 
 def setup(bot: commands.Bot):
-    bot.add_cog(Random(bot))
+    bot.add_cog(Miscellaneous(bot))
