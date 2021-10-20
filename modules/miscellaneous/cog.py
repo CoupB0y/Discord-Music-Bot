@@ -11,6 +11,13 @@ class Miscellaneous(commands.Cog):
 
 
     @commands.command()
+    async def hello(self, ctx):
+        ''' Bot replies with a Hello! '''
+
+        await ctx.send(f"Hello, {ctx.author.mention}, I'm your DJ!")
+
+
+    @commands.command()
     async def roll(self, ctx: commands.Context, dice: str):
         ''' Rolls a given number of dice in the form #d#
 
