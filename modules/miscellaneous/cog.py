@@ -11,6 +11,13 @@ class Miscellaneous(commands.Cog):
 
 
     @commands.command()
+    async def ping(self, ctx: commands.Context):
+        ''' Checks for response from bot '''
+
+        await ctx.send(f"Pong! {round(self.bot.latency * 1000, 1)} ms")
+
+
+    @commands.command()
     async def hello(self, ctx):
         ''' Bot replies with a Hello! '''
 
