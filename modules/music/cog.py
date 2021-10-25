@@ -130,6 +130,7 @@ class Music(commands.Cog, name="Music Player"):
         guild_id = ctx.message.guild.id
         voice.pause()
         self.check_queue(ctx, guild_id)
+        await ctx.send("Skipped \U000023ED")
 
     @commands.command()
     async def clear(self, ctx):
@@ -156,7 +157,7 @@ class Music(commands.Cog, name="Music Player"):
         voice = dget(self.bot.voice_clients, guild=ctx.guild)
         if voice.is_playing():
             voice.pause()
-            await ctx.send("Paused")
+            await ctx.send("Paused \U000023F8")
         else:
             await ctx.send("Currently no audio is playing.")
 
@@ -167,7 +168,7 @@ class Music(commands.Cog, name="Music Player"):
         voice = dget(self.bot.voice_clients, guild=ctx.guild)
         if voice.is_paused():
             voice.resume()
-            await ctx.send("Resumed")
+            await ctx.send("Resumed \U000025B6")
         else:
             await ctx.send("The audio is not paused.")
 
