@@ -25,7 +25,6 @@ class Music(commands.Cog, name="Music Player"):
         if self.queues[guild_id]:
             voice = ctx.guild.voice_client
             source = self.queues[guild_id].pop(0)
-            self.bot.loop.create_task(self.bot.change_presence(status=nextcord.Status.online, activity=nextcord.Game(source['title'])))
 
             source = source['formats'][0]['url']
             voice.play(FFmpegPCMAudio(source, **self.FFMPEG_OPTS),
@@ -80,7 +79,7 @@ class Music(commands.Cog, name="Music Player"):
             await ctx.send(f"Added {video['title']} to queue")
         else:
             await ctx.send(f"Now playing {video['title']}.")
-            await self.bot.change_presence(status=nextcord.Status.online, activity=nextcord.Game(video['title']))
+            self.bot.change_presence(status=nextcord.Status.online, activity=nextcord.Game("Songs"))
             voice.play(FFmpegPCMAudio(source, **self.FFMPEG_OPTS),
                        after=lambda x: self.check_queue(ctx,
                                                         ctx.message.guild.id))
@@ -212,7 +211,7 @@ class Music(commands.Cog, name="Music Player"):
         voice = dget(self.bot.voice_clients, guild=ctx.guild)
         voice.stop()
         self.queues[guild_id] = []
-        await self.bot.change_presence(status=nextcord.Status.idle, activity=nextcord.Game("Nothing"))
+        await self.bot.change_presence(status=nextcord.Status.online, activity=nextcord.Game("Songs"))
 
 
 def setup(bot: commands.Bot):
