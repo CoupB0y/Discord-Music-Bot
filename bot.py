@@ -1,4 +1,5 @@
 import os
+import nextcord
 from dotenv.main import load_dotenv
 from nextcord.ext import commands
 
@@ -11,6 +12,7 @@ def main():
     @client.event
     async def on_ready():
         print(f"{client.user.name} has connected to Discord.")
+
 
     for folder in os.listdir("modules"):
         if os.path.exists(os.path.join("modules", folder, "cog.py")):
