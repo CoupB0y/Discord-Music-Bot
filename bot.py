@@ -1,5 +1,4 @@
 import os
-import nextcord
 from dotenv.main import load_dotenv
 from nextcord.ext import commands
 

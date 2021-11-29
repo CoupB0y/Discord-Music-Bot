@@ -1,6 +1,5 @@
 
 import nextcord
-import asyncio
 from nextcord import Embed
 from nextcord import FFmpegPCMAudio
 from nextcord.ext import commands
