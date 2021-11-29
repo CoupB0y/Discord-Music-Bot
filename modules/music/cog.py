@@ -79,7 +79,7 @@ class Music(commands.Cog, name="Music Player"):
             await ctx.send(f"Added {video['title']} to queue")
         else:
             await ctx.send(f"Now playing {video['title']}.")
-            self.bot.change_presence(status=nextcord.Status.online, activity=nextcord.Game("Songs"))
+            await self.bot.change_presence(status=nextcord.Status.online, activity=nextcord.Game("Songs"))
             voice.play(FFmpegPCMAudio(source, **self.FFMPEG_OPTS),
                        after=lambda x: self.check_queue(ctx,
                                                         ctx.message.guild.id))
