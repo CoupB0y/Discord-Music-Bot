@@ -49,7 +49,7 @@ class Music(commands.Cog, name="Music Player"):
     async def play(self, ctx, *, query):
         ''' Searches youtube for the song entered and plays it
 
-        Example: ?play country roads
+        Example: ?play <song>
         '''
 
         video = self.search(query)
