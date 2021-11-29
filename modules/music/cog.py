@@ -84,13 +84,40 @@ class Music(commands.Cog, name="Music Player"):
             voice.play(FFmpegPCMAudio(source, **self.FFMPEG_OPTS),
                        after=lambda x: self.check_queue(ctx,
                                                         ctx.message.guild.id))
+            voice.source = nextcord.PCMVolumeTransformer(voice.source, volume=1.0)
             voice.is_playing()
 
-    @commands.command()
-    async def volume(self, ctx, value: int):
-        """Sets the volume of the currently playing song."""
 
-        pass
+    @commands.command()
+    async def volume(self, ctx, volume):
+        ''' Adjusts the volume of the bot. Enter Up,Down or a #
+
+        Example: ?volume 50, ?volume down, ?volume up
+        '''
+        voice = dget(self.bot.voice_clients, guild=ctx.guild)
+        volume = volume.lower()
+        if volume == "up" or volume == "down":
+            if volume == "up":
+                if voice.source.volume == 2or 2 < (voice.source.volume + 0.1):
+                    await ctx.send("Volume is already at highest setting")
+                else:
+                    voice.source.volume = voice.source.volume + 0.1
+            else:
+                if voice.source.volume == 0 or 0 > (voice.source.volume - 0.1):
+                    await ctx.send("Volume is already at lowest setting")
+                else:
+                    voice.source.volume = voice.source.volume - 0.1
+        else:
+            new_volume = float(volume)
+            if 0 <= new_volume <= 200:
+                new_volume = new_volume / 100
+                voice.source.volume = new_volume
+            else:
+                await ctx.channel.send('Please enter a volume between 0 and 100')
+
+
+
+
 
     @commands.command()
     async def show(self, ctx):
