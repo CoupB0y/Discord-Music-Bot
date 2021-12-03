@@ -20,6 +20,7 @@ class Music(commands.Cog, name="Music Player"):
             }
 
         self.queues = {}
+        self.volume = None
 
     def check_queue(self, ctx, guild_id):
         if self.queues[guild_id]:
@@ -30,6 +31,8 @@ class Music(commands.Cog, name="Music Player"):
             voice.play(FFmpegPCMAudio(source, **self.FFMPEG_OPTS),
                        after=lambda x: self.check_queue(ctx,
                                                         ctx.message.guild.id))
+            voice.source = nextcord.PCMVolumeTransformer(voice.source, volume=self.volume)
+
 
 
     def search(self, query):
@@ -83,7 +86,8 @@ class Music(commands.Cog, name="Music Player"):
             voice.play(FFmpegPCMAudio(source, **self.FFMPEG_OPTS),
                        after=lambda x: self.check_queue(ctx,
                                                         ctx.message.guild.id))
-            voice.source = nextcord.PCMVolumeTransformer(voice.source, volume=1.0)
+            self.volume = 1.0
+            voice.source = nextcord.PCMVolumeTransformer(voice.source, volume=self.volume)
             voice.is_playing()
 
 
@@ -101,18 +105,20 @@ class Music(commands.Cog, name="Music Player"):
                     await ctx.send("Volume is already at highest setting")
                 else:
                     voice.source.volume = voice.source.volume + 0.1
+                    self.volume = voice.source.volume
             else:
                 if voice.source.volume == 0 or 0 > (voice.source.volume - 0.1):
                     await ctx.send("Volume is already at lowest setting")
                 else:
                     voice.source.volume = voice.source.volume - 0.1
+                    self.volume = voice.source.volume
         else:
             new_volume = float(volume)
             if 0 <= new_volume <= 200:
-                new_volume = new_volume / 100
-                voice.source.volume = new_volume
+                self.volume = new_volume / 100
+                voice.source.volume = self.volume
             else:
-                await ctx.channel.send('Please enter a volume between 0 and 100')
+                await ctx.channel.send('Please enter a volume between 0 and 200')
 
 
 
