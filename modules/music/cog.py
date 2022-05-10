@@ -1,12 +1,38 @@
 
 import nextcord
-from nextcord import Embed
+from nextcord import Embed, ButtonStyle
 from nextcord import FFmpegPCMAudio
 from nextcord.ext import commands
-from nextcord.ui import Button, View  
+from nextcord.ui import Button, View
 from nextcord.utils import get as dget
 from youtube_dl import YoutubeDL
 from requests import get
+
+
+class MediaController(View):
+    def __init__(self, voice):
+        super().__init__(timeout=None)
+        self.voice = voice
+
+    @nextcord.ui.button(label='Pause', style=ButtonStyle.primary)
+    async def pause(self, button: nextcord.ui.Button, interaction: nextcord.Interaction):
+        if self.voice.is_playing():
+            self.voice.pause()
+
+    @nextcord.ui.button(label='Resume', style=ButtonStyle.secondary)
+    async def resume(self, button: Button, interaction: nextcord.Interaction):
+        if self.voice.is_paused():
+            self.voice.resume()
+            
+    @nextcord.ui.button(label='Up', style=ButtonStyle.danger)
+    async def volume_up(self, button: Button, interaction: nextcord.Interaction):
+        if self.voice.source.volume + 0.2 < 200:
+            self.voice.source.volume += 0.2
+            
+    @nextcord.ui.button(label='Down', style=ButtonStyle.green)
+    async def volume_down(self, button: Button, interaction: nextcord.Interaction):
+        if self.voice.source.volume - 0.2 > 0:
+            self.voice.source.volume -= 0.2
 
 
 class Music(commands.Cog, name="Music Player"):
@@ -22,14 +48,20 @@ class Music(commands.Cog, name="Music Player"):
 
         self.queues = {}
         self.volume = None
+                
 
-    def check_queue(self, ctx, guild_id):
+    async def check_queue(self, ctx, guild_id):
         if self.queues[guild_id]:
             voice = ctx.guild.voice_client
             source = self.queues[guild_id].pop(0)
 
-            source = source['formats'][0]['url']
-            voice.play(FFmpegPCMAudio(source, **self.FFMPEG_OPTS),
+            song = source['formats'][0]['url']
+            thumbnail = source['thumbnails'][0]['url']
+            myview = MediaController(voice)
+            embed = nextcord.Embed(title="Now Playing", description=source['title'])
+            embed.set_image(url=thumbnail)
+            await ctx.send(embed=embed,view=myview)
+            voice.play(FFmpegPCMAudio(song, **self.FFMPEG_OPTS),
                        after=lambda x: self.check_queue(ctx,
                                                         ctx.message.guild.id))
             voice.source = nextcord.PCMVolumeTransformer(voice.source, volume=self.volume)
@@ -48,11 +80,7 @@ class Music(commands.Cog, name="Music Player"):
 
         return info
     
-    @commands.command()
-    async def test(self, ctx):
-        embed = nextcord.Embed(title="Test", description="This is a test embed")
-        embed.set_image(url="https://i.ytimg.com/vi/2n5GKLdrTfk/hqdefault.jpg?sqp=-oaymwEbCKgBEF5IVfKriqkDDggBFQAAiEIYAXABwAEG&rs=AOn4CLBgZfqXCaEvs5iiS7Uf8_th3FHi0Q")
-        await ctx.send(embed=embed)
+            
 
     @commands.command()
     async def play(self, ctx, *, query):
@@ -80,7 +108,8 @@ class Music(commands.Cog, name="Music Player"):
             await voice_channel.connect()
 
         voice = dget(self.bot.voice_clients, guild=ctx.guild)
-
+        
+        
         if voice.is_playing():
             if guild_id in self.queues:
                 self.queues[guild_id].append(video)
@@ -89,9 +118,10 @@ class Music(commands.Cog, name="Music Player"):
 
             await ctx.send(f"Added {video['title']} to queue")
         else:
+            myview = MediaController(voice)
             embed = nextcord.Embed(title="Now Playing", description=video['title'])
             embed.set_image(url=thumbnail)
-            await ctx.send(embed=embed)
+            await ctx.send(embed=embed,view=myview)
             await self.bot.change_presence(status=nextcord.Status.online, activity=nextcord.Game("Songs"))
             voice.play(FFmpegPCMAudio(source, **self.FFMPEG_OPTS),
                        after=lambda x: self.check_queue(ctx,
@@ -111,7 +141,7 @@ class Music(commands.Cog, name="Music Player"):
         volume = volume.lower()
         if volume == "up" or volume == "down":
             if volume == "up":
-                if voice.source.volume == 2or 2 < (voice.source.volume + 0.1):
+                if voice.source.volume == 2 or 2 < (voice.source.volume + 0.1):
                     await ctx.send("Volume is already at highest setting")
                 else:
                     voice.source.volume = voice.source.volume + 0.1
@@ -176,8 +206,8 @@ class Music(commands.Cog, name="Music Player"):
         voice = dget(self.bot.voice_clients, guild=ctx.guild)
         guild_id = ctx.message.guild.id
         voice.pause()
-        self.check_queue(ctx, guild_id)
         await ctx.send("Skipped \U000023ED")
+        await self.check_queue(ctx, guild_id)
 
     @commands.command()
     async def clear(self, ctx):
