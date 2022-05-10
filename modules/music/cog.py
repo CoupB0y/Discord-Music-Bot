@@ -3,6 +3,7 @@ import nextcord
 from nextcord import Embed
 from nextcord import FFmpegPCMAudio
 from nextcord.ext import commands
+from nextcord.ui import Button, View  
 from nextcord.utils import get as dget
 from youtube_dl import YoutubeDL
 from requests import get
@@ -46,6 +47,12 @@ class Music(commands.Cog, name="Music Player"):
                 info = ydl.extract_info(query, download=False)
 
         return info
+    
+    @commands.command()
+    async def test(self, ctx):
+        embed = nextcord.Embed(title="Test", description="This is a test embed")
+        embed.set_image(url="https://i.ytimg.com/vi/2n5GKLdrTfk/hqdefault.jpg?sqp=-oaymwEbCKgBEF5IVfKriqkDDggBFQAAiEIYAXABwAEG&rs=AOn4CLBgZfqXCaEvs5iiS7Uf8_th3FHi0Q")
+        await ctx.send(embed=embed)
 
     @commands.command()
     async def play(self, ctx, *, query):
@@ -53,9 +60,10 @@ class Music(commands.Cog, name="Music Player"):
 
         Example: ?play <song>
         '''
-
+        
         video = self.search(query)
         source = video['formats'][0]['url']
+        thumbnail = video['thumbnails'][0]['url']
         voice_state = ctx.author.voice
         voice = dget(self.bot.voice_clients, guild=ctx.guild)
         guild_id = ctx.message.guild.id
@@ -81,7 +89,9 @@ class Music(commands.Cog, name="Music Player"):
 
             await ctx.send(f"Added {video['title']} to queue")
         else:
-            await ctx.send(f"Now playing {video['title']}.")
+            embed = nextcord.Embed(title="Now Playing", description=video['title'])
+            embed.set_image(url=thumbnail)
+            await ctx.send(embed=embed)
             await self.bot.change_presence(status=nextcord.Status.online, activity=nextcord.Game("Songs"))
             voice.play(FFmpegPCMAudio(source, **self.FFMPEG_OPTS),
                        after=lambda x: self.check_queue(ctx,
