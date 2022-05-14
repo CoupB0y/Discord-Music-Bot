@@ -24,15 +24,15 @@ class MediaController(View):
         if self.voice.is_paused():
             self.voice.resume()
             
-    @nextcord.ui.button(label='Up', style=ButtonStyle.danger)
+    @nextcord.ui.button(label='Mute', style=ButtonStyle.danger)
     async def volume_up(self, button: Button, interaction: nextcord.Interaction):
-        if self.voice.source.volume + 0.2 < 200:
-            self.voice.source.volume += 0.2
+        prev_vol = self.voice.volume
+        if self.voice.is_playing():
+            if self.voice.volume > 0:
+                self.voice.volume = 0
+            else:
+                self.voice.volume = prev_vol
             
-    @nextcord.ui.button(label='Down', style=ButtonStyle.green)
-    async def volume_down(self, button: Button, interaction: nextcord.Interaction):
-        if self.voice.source.volume - 0.2 > 0:
-            self.voice.source.volume -= 0.2
 
 
 class Music(commands.Cog, name="Music Player"):
@@ -60,6 +60,7 @@ class Music(commands.Cog, name="Music Player"):
             myview = MediaController(voice)
             embed = nextcord.Embed(title="Now Playing", description=source['title'])
             embed.set_image(url=thumbnail)
+            await ctx.send("i got here")
             await ctx.send(embed=embed,view=myview)
             voice.play(FFmpegPCMAudio(song, **self.FFMPEG_OPTS),
                        after=lambda x: self.check_queue(ctx,
