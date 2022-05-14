@@ -63,7 +63,7 @@ class Music(commands.Cog, name="Music Player"):
             await ctx.send("i got here")
             await ctx.send(embed=embed,view=myview)
             voice.play(FFmpegPCMAudio(song, **self.FFMPEG_OPTS),
-                       after=lambda x: await self.check_queue(ctx,
+                       after=lambda x: self.check_queue(ctx,
                                                         ctx.message.guild.id))
             voice.source = nextcord.PCMVolumeTransformer(voice.source, volume=self.volume)
 
