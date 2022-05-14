@@ -22,17 +22,7 @@ class MediaController(View):
     @nextcord.ui.button(label='Resume', style=ButtonStyle.secondary)
     async def resume(self, button: Button, interaction: nextcord.Interaction):
         if self.voice.is_paused():
-            self.voice.resume()
-            
-    @nextcord.ui.button(label='Mute', style=ButtonStyle.secondary)
-    async def mute(self, button: Button, interaction: nextcord.Interaction):
-        prev_vol = self.voice.source.volume 
-        if self.voice.is_playing():
-            if self.voice.source.volume == 0:
-                self.voice.source.volume = prev_vol
-            else:
-                self.voice.source.volume = 0
-                         
+            self.voice.resume()                         
 
 
 class Music(commands.Cog, name="Music Player"):
