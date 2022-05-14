@@ -60,7 +60,6 @@ class Music(commands.Cog, name="Music Player"):
             myview = MediaController(voice)
             embed = nextcord.Embed(title="Now Playing", description=source['title'])
             embed.set_image(url=thumbnail)
-            await ctx.send("i got here")
             await ctx.send(embed=embed,view=myview)
             voice.play(FFmpegPCMAudio(song, **self.FFMPEG_OPTS),
                        after=lambda x: self.check_queue(ctx,
@@ -124,7 +123,7 @@ class Music(commands.Cog, name="Music Player"):
             embed.set_image(url=thumbnail)
             await ctx.send(embed=embed,view=myview)
             await self.bot.change_presence(status=nextcord.Status.online, activity=nextcord.Game("Songs"))
-            await voice.play(FFmpegPCMAudio(source, **self.FFMPEG_OPTS),
+            voice.play(FFmpegPCMAudio(source, **self.FFMPEG_OPTS),
                        after=lambda x: self.check_queue(ctx,
                                                         ctx.message.guild.id))
             self.volume = 1.0
