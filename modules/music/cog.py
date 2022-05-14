@@ -22,17 +22,7 @@ class MediaController(View):
     @nextcord.ui.button(label='Resume', style=ButtonStyle.secondary)
     async def resume(self, button: Button, interaction: nextcord.Interaction):
         if self.voice.is_paused():
-            self.voice.resume()
-            
-    @nextcord.ui.button(label='Mute', style=ButtonStyle.danger)
-    async def volume_up(self, button: Button, interaction: nextcord.Interaction):
-        prev_vol = self.voice.volume
-        if self.voice.is_playing():
-            if self.voice.volume > 0:
-                self.voice.volume = 0
-            else:
-                self.voice.volume = prev_vol
-            
+            self.voice.resume()            
 
 
 class Music(commands.Cog, name="Music Player"):
@@ -49,7 +39,7 @@ class Music(commands.Cog, name="Music Player"):
         self.queues = {}
         self.volume = None
                 
-
+    @commands.command()
     async def check_queue(self, ctx, guild_id):
         if self.queues[guild_id]:
             voice = ctx.guild.voice_client
@@ -125,7 +115,7 @@ class Music(commands.Cog, name="Music Player"):
             await ctx.send(embed=embed,view=myview)
             await self.bot.change_presence(status=nextcord.Status.online, activity=nextcord.Game("Songs"))
             voice.play(FFmpegPCMAudio(source, **self.FFMPEG_OPTS),
-                       after=lambda x: await self.check_queue(ctx,
+                       after=lambda x: self.check_queue(ctx,
                                                         ctx.message.guild.id))
             self.volume = 1.0
             voice.source = nextcord.PCMVolumeTransformer(voice.source, volume=self.volume)
